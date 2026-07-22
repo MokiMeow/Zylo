@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Zylo
 
-## Getting Started
+Zylo is a full-stack social network built with Next.js. It includes email/password and Google authentication, profiles and follows, posts with media attachments, likes, comments, bookmarks, notifications, search, and real-time direct or group messaging.
 
-First, run the development server:
+## Stack
+
+- Next.js 16, React 19, TypeScript, and Tailwind CSS
+- PostgreSQL with Prisma
+- Lucia sessions and Google OAuth
+- UploadThing media storage
+- Stream Chat messaging
+- TanStack Query and React Hook Form
+
+## Local setup
+
+Requirements: Node.js 24, npm 11, and a PostgreSQL database.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/MokiMeow/Zylo.git
+cd Zylo
+npm ci
+copy .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+On macOS or Linux, replace the last command with `cp .env.example .env.local`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create applications in Google Cloud, Stream, and UploadThing, then fill in `.env.local`. Never commit that file or paste secrets into issues.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+Initialize the database and start development:
 
-## Learn More
+```bash
+npx prisma db push
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open <http://localhost:3000>.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable                   | Purpose                                                 |
+| -------------------------- | ------------------------------------------------------- |
+| `POSTGRES_PRISMA_URL`      | Pooled PostgreSQL connection used by the app            |
+| `POSTGRES_URL_NON_POOLING` | Direct PostgreSQL connection used by Prisma operations  |
+| `GOOGLE_CLIENT_ID`         | Google OAuth client ID                                  |
+| `GOOGLE_CLIENT_SECRET`     | Google OAuth client secret                              |
+| `NEXT_PUBLIC_BASE_URL`     | Application origin, such as `http://localhost:3000`     |
+| `NEXT_PUBLIC_STREAM_KEY`   | Public Stream application key                           |
+| `STREAM_SECRET`            | Stream server secret                                    |
+| `UPLOADTHING_TOKEN`        | UploadThing v7 application token                        |
+| `CRON_SECRET`              | Bearer token protecting the unused-upload cleanup route |
 
-## Deploy on Vercel
+The Google OAuth redirect URI is `<NEXT_PUBLIC_BASE_URL>/api/auth/callback/google`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Quality checks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+`npm run check` runs the complete suite. The production build intentionally uses webpack because UploadThing's current package metadata is not yet handled correctly by the Next.js 16 Turbopack production resolver.
+
+## Deployment
+
+Deploy to any Node.js host that supports Next.js. Configure every variable from `.env.example`, use a persistent PostgreSQL database, and run `npx prisma db push` (or a reviewed Prisma migration) before serving traffic. For Vercel, set the same variables for Preview and Production environments.
+
+The `/api/clear-uploads` endpoint accepts `Authorization: Bearer <CRON_SECRET>` and is intended for a trusted scheduled request.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please report security concerns using [SECURITY.md](SECURITY.md), not a public issue.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

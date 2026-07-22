@@ -17,10 +17,9 @@ export async function deletePost(id: string) {
 
   if (post.userId !== user.id) throw new Error("Unauthorized");
 
-const deletedPost = await prisma.post.delete({
+  const deletedPost = await prisma.post.delete({
     where: { id },
     include: getPostDataInclude(user.id),
-
   });
 
   return deletedPost;

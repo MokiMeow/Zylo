@@ -25,9 +25,9 @@ export async function GET(req: NextRequest) {
     const nextCursor = posts.length > pageSize ? posts[pageSize].id : null;
 
     const data: PostsPage = {
-        posts: posts.slice(0, pageSize),
-        nextCursor,
-      };
+      posts: posts.slice(0, pageSize),
+      nextCursor,
+    };
 
     return Response.json(data);
   } catch (error) {

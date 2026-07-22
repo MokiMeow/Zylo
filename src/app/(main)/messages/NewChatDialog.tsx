@@ -13,7 +13,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Loader2, SearchIcon, X } from "lucide-react";
 import { useState } from "react";
 import { UserResponse } from "stream-chat";
-import { DefaultStreamChatGenerics, useChatContext } from "stream-chat-react";
+import { useChatContext } from "stream-chat-react";
 import { useSession } from "../SessionProvider";
 
 interface NewChatDialogProps {
@@ -34,17 +34,14 @@ export default function NewChatDialog({
   const [searchInput, setSearchInput] = useState("");
   const searchInputDebounced = useDebounce(searchInput);
 
-  const [selectedUsers, setSelectedUsers] = useState<
-    UserResponse<DefaultStreamChatGenerics>[]
-  >([]);
+  const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>([]);
 
   const { data, isFetching, isError, isSuccess } = useQuery({
     queryKey: ["stream-users", searchInputDebounced],
     queryFn: async () =>
       client.queryUsers(
         {
-          id: { $ne: loggedInUser.id },
-          role: { $ne: "admin" },
+          $nor: [{ id: loggedInUser.id }, { role: "admin" }],
           ...(searchInputDebounced
             ? {
                 $or: [
@@ -162,7 +159,7 @@ export default function NewChatDialog({
 }
 
 interface UserResultProps {
-  user: UserResponse<DefaultStreamChatGenerics>;
+  user: UserResponse;
   selected: boolean;
   onClick: () => void;
 }
@@ -186,7 +183,7 @@ function UserResult({ user, selected, onClick }: UserResultProps) {
 }
 
 interface SelectedUserTagProps {
-  user: UserResponse<DefaultStreamChatGenerics>;
+  user: UserResponse;
   onRemove: () => void;
 }
 

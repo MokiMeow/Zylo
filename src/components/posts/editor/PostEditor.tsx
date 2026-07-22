@@ -16,7 +16,6 @@ import { useSubmitPostMutation } from "./mutations";
 import "./styles.css";
 import useMediaUpload, { Attachment } from "./useMediaUpload";
 
-
 export default function PostEditor() {
   const { user } = useSession();
 
@@ -35,7 +34,8 @@ export default function PostEditor() {
     onDrop: startUpload,
   });
 
-  const { onClick, ...rootProps } = getRootProps();
+  const rootProps = getRootProps();
+  delete rootProps.onClick;
 
   const editor = useEditor({
     extensions: [
@@ -51,7 +51,6 @@ export default function PostEditor() {
   });
 
   const input = editor?.getText({ blockSeparator: "\n" }) || "";
-
 
   function onSubmit() {
     mutation.mutate(
@@ -78,7 +77,7 @@ export default function PostEditor() {
   return (
     <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 shadow-sm">
       <div className="flex gap-5">
-      <UserAvatar avatarUrl={user.avatarUrl} className="hidden sm:inline" />
+        <UserAvatar avatarUrl={user.avatarUrl} className="hidden sm:inline" />
         <div {...rootProps} className="w-full">
           <EditorContent
             editor={editor}
@@ -104,7 +103,7 @@ export default function PostEditor() {
             <Loader2 className="size-5 animate-spin text-primary" />
           </>
         )}
-      <AddAttachmentsButton
+        <AddAttachmentsButton
           onFilesSelected={startUpload}
           disabled={isUploading || attachments.length >= 5}
         />
@@ -194,7 +193,7 @@ interface AttachmentPreviewProps {
 }
 
 function AttachmentPreview({
-  attachment: { file, mediaId, isUploading },
+  attachment: { file, isUploading },
   onRemoveClick,
 }: AttachmentPreviewProps) {
   const src = URL.createObjectURL(file);

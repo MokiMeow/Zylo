@@ -16,9 +16,8 @@ import { useState } from "react";
 import { MessageSquare } from "lucide-react";
 import Comments from "../comments/Comments";
 
-
 interface PostProps {
-    post: PostData;
+  post: PostData;
 }
 
 export default function Post({ post }: PostProps) {
@@ -95,71 +94,70 @@ export default function Post({ post }: PostProps) {
   );
 }
 
+interface MediaPreviewsProps {
+  attachments: Media[];
+}
 
-  interface MediaPreviewsProps {
-    attachments: Media[];
+function MediaPreviews({ attachments }: MediaPreviewsProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-3",
+        attachments.length > 1 && "sm:grid sm:grid-cols-2",
+      )}
+    >
+      {attachments.map((m) => (
+        <MediaPreview key={m.id} media={m} />
+      ))}
+    </div>
+  );
+}
+
+interface MediaPreviewProps {
+  media: Media;
+}
+
+function MediaPreview({ media }: MediaPreviewProps) {
+  if (media.type === "IMAGE") {
+    return (
+      <Image
+        src={media.url}
+        alt="Attachment"
+        width={500}
+        height={500}
+        className="mx-auto size-fit max-h-[30rem] rounded-2xl"
+      />
+    );
   }
 
-  function MediaPreviews({ attachments }: MediaPreviewsProps) {
+  if (media.type === "VIDEO") {
     return (
-      <div
-        className={cn(
-          "flex flex-col gap-3",
-          attachments.length > 1 && "sm:grid sm:grid-cols-2",
-        )}
-      >
-        {attachments.map((m) => (
-          <MediaPreview key={m.id} media={m} />
-        ))}
+      <div>
+        <video
+          src={media.url}
+          controls
+          className="mx-auto size-fit max-h-[30rem] rounded-2xl"
+        />
       </div>
     );
   }
 
-  interface MediaPreviewProps {
-    media: Media;
-  }
+  return <p className="text-destructive">Unsupported media type</p>;
+}
 
-  function MediaPreview({ media }: MediaPreviewProps) {
-    if (media.type === "IMAGE") {
-      return (
-        <Image
-          src={media.url}
-          alt="Attachment"
-          width={500}
-          height={500}
-          className="mx-auto size-fit max-h-[30rem] rounded-2xl"
-        />
-      );
-    }
+interface CommentButtonProps {
+  post: PostData;
+  onClick: () => void;
+}
 
-    if (media.type === "VIDEO") {
-      return (
-        <div>
-          <video
-            src={media.url}
-            controls
-            className="mx-auto size-fit max-h-[30rem] rounded-2xl"
-          />
-        </div>
-      );
-    }
-
-    return <p className="text-destructive">Unsupported media type</p>;
-  }
-
-  interface CommentButtonProps {
-    post: PostData;
-    onClick: () => void;
-  }
-
-  function CommentButton({ post, onClick }: CommentButtonProps) {
-    return (
-      <button onClick={onClick} className="flex items-center gap-2">
-        <MessageSquare className="size-5" />
-        <span className="text-sm font-medium tabular-nums">
-          {post._count.comments}{" "}
-          <span className="hidden sm:inline">comments</span>
-        </span>
-      </button>
-    );
-  }
+function CommentButton({ post, onClick }: CommentButtonProps) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-2">
+      <MessageSquare className="size-5" />
+      <span className="text-sm font-medium tabular-nums">
+        {post._count.comments}{" "}
+        <span className="hidden sm:inline">comments</span>
+      </span>
+    </button>
+  );
+}
