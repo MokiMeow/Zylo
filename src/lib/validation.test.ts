@@ -38,6 +38,12 @@ describe("validation schemas", () => {
       }),
     ).toThrow();
     expect(() =>
+      createPostSchema.parse({
+        content: "hello",
+        mediaIds: ["same-media", "same-media"],
+      }),
+    ).toThrow();
+    expect(() =>
       updateUserProfileSchema.parse({
         displayName: "Person",
         bio: "x".repeat(1001),

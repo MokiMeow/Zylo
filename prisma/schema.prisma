@@ -5,13 +5,13 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -31,6 +31,7 @@ model User {
   likes                 Like[]
   bookmarks             Bookmark[]
   comments              Comment[]
+  media                 Media[]
   receivedNotifications Notification[] @relation("Recipient")
   issuedNotifications   Notification[] @relation("Issuer")
 
@@ -69,8 +70,6 @@ model Post {
   comments            Comment[]
   linkedNotifications Notification[]
 
-
-
   createdAt DateTime @default(now())
 
   @@map("posts")
@@ -78,6 +77,8 @@ model Post {
 
 model Media {
   id     String    @id @default(cuid())
+  userId String?
+  user   User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   postId String?
   post   Post?     @relation(fields: [postId], references: [id], onDelete: SetNull)
   type   MediaType
@@ -85,6 +86,7 @@ model Media {
 
   createdAt DateTime @default(now())
 
+  @@index([userId, postId])
   @@map("post_media")
 }
 

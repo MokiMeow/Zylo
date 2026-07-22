@@ -21,7 +21,7 @@ export default function CommentInput({ post }: CommentInputProps) {
 
     mutation.mutate(
       {
-        post,
+        postId: post.id,
         content: input,
       },
       {
