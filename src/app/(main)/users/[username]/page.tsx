@@ -2,7 +2,6 @@ import { validateRequest } from "@/auth";
 import FollowButton from "@/components/FollowButton";
 import FollowerCount from "@/components/FollowerCount";
 import TrendsSidebar from "@/components/TrendsSidebar";
-import { Button } from "@/components/ui/button";
 import UserAvatar from "@/components/UserAvatar";
 import prisma from "@/lib/prisma";
 import { FollowerInfo, getUserDataSelect, UserData } from "@/lib/types";
@@ -15,9 +14,8 @@ import UserPosts from "./UserPosts";
 import Linkify from "@/components/Linkify";
 import EditProfileButton from "./EditProfileButton";
 
-
 interface PageProps {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 const getUser = cache(async (username: string, loggedInUserId: string) => {
@@ -37,8 +35,9 @@ const getUser = cache(async (username: string, loggedInUserId: string) => {
 });
 
 export async function generateMetadata({
-  params: { username },
+  params,
 }: PageProps): Promise<Metadata> {
+  const { username } = await params;
   const { user: loggedInUser } = await validateRequest();
 
   if (!loggedInUser) return {};
@@ -50,7 +49,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({ params: { username } }: PageProps) {
+export default async function Page({ params }: PageProps) {
+  const { username } = await params;
   const { user: loggedInUser } = await validateRequest();
 
   if (!loggedInUser) {
@@ -117,7 +117,7 @@ async function UserProfile({ user, loggedInUserId }: UserProfileProps) {
           </div>
         </div>
         {user.id === loggedInUserId ? (
-             <EditProfileButton user={user} />
+          <EditProfileButton user={user} />
         ) : (
           <FollowButton userId={user.id} initialState={followerInfo} />
         )}
@@ -126,11 +126,11 @@ async function UserProfile({ user, loggedInUserId }: UserProfileProps) {
         <>
           <hr />
           <>
-          <Linkify>
-            <div className="overflow-hidden whitespace-pre-line break-words">
-              {user.bio}
-            </div>
-          </Linkify>
+            <Linkify>
+              <div className="overflow-hidden whitespace-pre-line break-words">
+                {user.bio}
+              </div>
+            </Linkify>
           </>
         </>
       )}

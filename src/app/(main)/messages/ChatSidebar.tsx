@@ -5,8 +5,9 @@ import { MailPlus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   ChannelList,
-  ChannelPreviewMessenger,
-  ChannelPreviewUIComponentProps,
+  ChannelListItemUI,
+  type ChannelListItemUIProps,
+  WithComponents,
   useChatContext,
 } from "stream-chat-react";
 import { useSession } from "../SessionProvider";
@@ -30,11 +31,12 @@ export default function ChatSidebar({ open, onClose }: ChatSidebarProps) {
     }
   }, [channel?.id, queryClient]);
 
-  const ChannelPreviewCustom = useCallback(
-    (props: ChannelPreviewUIComponentProps) => (
-      <ChannelPreviewMessenger
+  const ChannelListItemCustom = useCallback(
+    (props: ChannelListItemUIProps) => (
+      <ChannelListItemUI
         {...props}
-        onSelect={() => {
+        onSelect={(event) => {
+          props.onSelect?.(event);
           props.setActiveChannel?.(props.channel, props.watchers);
           onClose();
         }}
@@ -51,24 +53,17 @@ export default function ChatSidebar({ open, onClose }: ChatSidebarProps) {
       )}
     >
       <MenuHeader onClose={onClose} />
-      <ChannelList
-        filters={{
-          type: "messaging",
-          members: { $in: [user.id] },
-        }}
-        showChannelSearch
-        options={{ state: true, presence: true, limit: 8 }}
-        sort={{ last_message_at: -1 }}
-        additionalChannelSearchProps={{
-          searchForChannels: true,
-          searchQueryParams: {
-            channelFilters: {
-              filters: { members: { $in: [user.id] } },
-            },
-          },
-        }}
-        Preview={ChannelPreviewCustom}
-      />
+      <WithComponents overrides={{ ChannelListItemUI: ChannelListItemCustom }}>
+        <ChannelList
+          filters={{
+            type: "messaging",
+            members: { $in: [user.id] },
+          }}
+          showChannelSearch
+          options={{ state: true, presence: true, limit: 8 }}
+          sort={{ last_message_at: -1 }}
+        />
+      </WithComponents>
     </div>
   );
 }

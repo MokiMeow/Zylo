@@ -1,13 +1,8 @@
-import dynamic from 'next/dynamic';
-import prisma from "@/lib/prisma";
-import Post from '@/components/posts/Post';
-import TrendsSidebar from '@/components/TrendsSidebar';
-import ForYouFeed from './ForYouFeed';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import FollowingFeed from './FollowingFeed';
-
-// Dynamically import PostEditor with SSR disabled
-const PostEditor = dynamic(() => import("@/components/posts/editor/PostEditor"), { ssr: false });
+import PostEditor from "@/components/posts/editor/PostEditor";
+import TrendsSidebar from "@/components/TrendsSidebar";
+import ForYouFeed from "./ForYouFeed";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FollowingFeed from "./FollowingFeed";
 
 export default function Home() {
   return (

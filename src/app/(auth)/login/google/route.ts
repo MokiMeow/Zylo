@@ -6,11 +6,13 @@ export async function GET() {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
 
-  const url = await google.createAuthorizationURL(state, codeVerifier, {
-    scopes: ["profile", "email"],
-  });
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "profile",
+    "email",
+  ]);
+  const cookieStore = await cookies();
 
-  cookies().set("state", state, {
+  cookieStore.set("state", state, {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
@@ -18,7 +20,7 @@ export async function GET() {
     sameSite: "lax",
   });
 
-  cookies().set("code_verifier", codeVerifier, {
+  cookieStore.set("code_verifier", codeVerifier, {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,

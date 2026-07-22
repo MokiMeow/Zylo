@@ -5,7 +5,7 @@ import {
   Channel,
   ChannelHeader,
   ChannelHeaderProps,
-  MessageInput,
+  MessageComposer,
   MessageList,
   Window,
 } from "stream-chat-react";
@@ -22,7 +22,7 @@ export default function ChatChannel({ open, openSidebar }: ChatChannelProps) {
         <Window>
           <CustomChannelHeader openSidebar={openSidebar} />
           <MessageList />
-          <MessageInput />
+          <MessageComposer />
         </Window>
       </Channel>
     </div>
