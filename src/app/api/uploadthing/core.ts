@@ -53,11 +53,12 @@ export const fileRouter = {
 
       if (!user) throw new UploadThingError("Unauthorized");
 
-      return {};
+      return { userId: user.id };
     })
-    .onUploadComplete(async ({ file }) => {
+    .onUploadComplete(async ({ metadata, file }) => {
       const media = await prisma.media.create({
         data: {
+          userId: metadata.userId,
           url: file.url,
           type: file.type.startsWith("image") ? "IMAGE" : "VIDEO",
         },

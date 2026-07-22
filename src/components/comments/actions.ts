@@ -2,14 +2,14 @@
 
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getCommentDataInclude, PostData } from "@/lib/types";
+import { getCommentDataInclude } from "@/lib/types";
 import { createCommentSchema } from "@/lib/validation";
 
 export async function submitComment({
-  post,
+  postId,
   content,
 }: {
-  post: PostData;
+  postId: string;
   content: string;
 }) {
   const { user } = await validateRequest();
@@ -18,28 +18,36 @@ export async function submitComment({
 
   const { content: contentValidated } = createCommentSchema.parse({ content });
 
-  const [newComment] = await prisma.$transaction([
-    prisma.comment.create({
+  const newComment = await prisma.$transaction(async (tx) => {
+    const post = await tx.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!post) throw new Error("Post not found");
+
+    const comment = await tx.comment.create({
       data: {
         content: contentValidated,
-        postId: post.id,
+        postId,
         userId: user.id,
       },
       include: getCommentDataInclude(user.id),
-    }),
-    ...(post.user.id !== user.id
-      ? [
-          prisma.notification.create({
-            data: {
-              issuerId: user.id,
-              recipientId: post.user.id,
-              postId: post.id,
-              type: "COMMENT",
-            },
-          }),
-        ]
-      : []),
-  ]);
+    });
+
+    if (post.userId !== user.id) {
+      await tx.notification.create({
+        data: {
+          issuerId: user.id,
+          recipientId: post.userId,
+          postId,
+          type: "COMMENT",
+        },
+      });
+    }
+
+    return comment;
+  });
 
   return newComment;
 }
